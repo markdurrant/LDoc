@@ -24,7 +24,6 @@ local utils = require 'pl.utils'
 local List = require 'pl.List'
 local stringx = require 'pl.stringx'
 local tablex = require 'pl.tablex'
-local pretty = require 'pl.pretty'
 
 -- Penlight compatibility
 utils.unpack = utils.unpack or unpack or table.unpack
@@ -32,6 +31,10 @@ local append = table.insert
 local lapp = require 'pl.lapp'
 
 local version = '1.4.6'
+
+-- export to json
+local file = require 'pl.file'
+local lunajson = require 'lunajson'
 
 -- so we can find our private modules
 app.require_here()
@@ -882,7 +885,7 @@ for _, m in pairs(ldoc.modules) do
   end
 end
 
-pretty.dump(json_export)
+file.write('content.json', lunajson.encode(json_export))
 
 if args.verbose then
    print 'modules'
