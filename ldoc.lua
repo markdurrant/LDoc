@@ -24,6 +24,7 @@ local utils = require 'pl.utils'
 local List = require 'pl.List'
 local stringx = require 'pl.stringx'
 local tablex = require 'pl.tablex'
+local pretty = require 'pl.pretty'
 
 -- Penlight compatibility
 utils.unpack = utils.unpack or unpack or table.unpack
@@ -827,7 +828,61 @@ end
 
 local html = require 'ldoc.html'
 
-html.generate_output(ldoc, args, project)
+-- html.generate_output(ldoc, args, project)
+
+local json_export = {
+  meta = {
+    title = ldoc.title,
+    project = ldoc.project
+  },
+  modules = {}
+}
+
+for _, m in pairs(ldoc.modules) do
+  local reduce_item = function (item)
+    local i = {}
+
+    if item.name then i.name = item.name end
+    if item.kind then i.kind = item.kind end
+    if item.type then i.type = item.type end
+    if item.summary then i.summary = item.summary end
+    if item.ret then i.ret = item.ret end
+    if item.description then i.description = item.description end
+    if item.params then i.params = item.params.map end
+
+    return i
+  end
+
+  local mod = { name = m.name}
+
+  if m.summary then mod.summary = m.summary end
+  if m.description then mod.description = m.description end
+  if m.body then mod.body = m.body end
+
+  if m.items then 
+    mod.items = {} 
+    
+    for _, i in pairs(m.items) do
+      if i.kind then 
+        if mod.items[i.kind] == nil then
+          mod.items[i.kind] = {}
+        end
+  
+        table.insert(mod.items[i.kind], reduce_item(i))
+      end
+    end
+  end
+
+  if m.kind then 
+    if json_export.modules[m.kind] == nil then
+      json_export.modules[m.kind] = {}
+    end
+  
+    table.insert(json_export.modules[m.kind], mod)
+  end
+end
+
+pretty.dump(json_export)
 
 if args.verbose then
    print 'modules'
