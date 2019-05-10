@@ -35,6 +35,9 @@ local version = '1.4.6'
 -- export to json
 local file = require 'pl.file'
 local lunajson = require 'lunajson'
+local dump = require 'pl.pretty'
+      dump = dump.dump
+local lxsh = require 'lxsh'
 
 -- so we can find our private modules
 app.require_here()
@@ -851,7 +854,15 @@ for _, m in pairs(ldoc.modules) do
     if item.summary then i.summary = item.summary end
     if item.ret then i.ret = item.ret end
     if item.description then i.description = item.description end
-    if item.params then i.params = item.params.map end
+    if item.args then i.args = item.args end
+    if item.usage then i.usage = item.usage end
+    if item.params then
+      i.params = {}
+     
+      for j, k in ipairs(item.params) do
+        i.params[j] = { name = k, description = item.params.map[k] }
+      end
+    end
 
     return i
   end
@@ -862,7 +873,7 @@ for _, m in pairs(ldoc.modules) do
   if m.description then mod.description = m.description end
   if m.body then mod.body = m.body end
 
-  if m.items then 
+  if m.items and #m.items > 0 then 
     mod.items = {} 
     
     for _, i in pairs(m.items) do
@@ -886,6 +897,7 @@ for _, m in pairs(ldoc.modules) do
 end
 
 file.write('content.json', lunajson.encode(json_export))
+dump(ldoc, "ldoc_dump.lua")
 
 if args.verbose then
    print 'modules'
