@@ -854,13 +854,16 @@ for _, m in pairs(ldoc.modules) do
     if item.summary then i.summary = item.summary end
     if item.ret then i.ret = item.ret end
     if item.description then i.description = item.description end
-    if item.args then i.args = item.args end
-    if item.usage then i.usage = item.usage end
-    if item.params then
-      i.params = {}
-     
-      for j, k in ipairs(item.params) do
-        i.params[j] = { name = k, description = item.params.map[k] }
+    if item.usage then i.usage = item.usage end   
+    if item.kind ~= "fields" then 
+      if item.args then i.args = item.args end
+      
+      if item.params then
+        i.params = {}
+       
+        for j, k in ipairs(item.params) do
+          i.params[j] = { name = k, description = item.params.map[k] }
+        end
       end
     end
 
@@ -876,7 +879,7 @@ for _, m in pairs(ldoc.modules) do
   if m.description then mod.description = m.description end
   if m.body then mod.body = m.body end
 
-  if m.items and #m.items > 0 then 
+  if m.items and #m.items > 0 and m.kind ~= "manual" then 
     mod.items = {} 
     
     for _, i in pairs(m.items) do
@@ -900,7 +903,7 @@ for _, m in pairs(ldoc.modules) do
 end
 
 file.write('content.json', lunajson.encode(json_export))
-dump(ldoc, "ldoc_dump.lua")
+-- dump(ldoc, "ldoc_dump.lua")
 
 if args.verbose then
    print 'modules'
