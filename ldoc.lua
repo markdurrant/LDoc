@@ -841,7 +841,7 @@ local json_export = {
     title = ldoc.title,
     project = ldoc.project
   },
-  modules = {}
+  pageTypes = {}
 }
 
 for _, m in pairs(ldoc.modules) do
@@ -867,8 +867,11 @@ for _, m in pairs(ldoc.modules) do
     return i
   end
 
-  local mod = { name = m.name}
+  local mod = { name = m.name }
 
+  if m.kind == "topics" then m.kind = "manual" end
+
+  if m.kind then mod.kind = m.kind end
   if m.summary then mod.summary = m.summary end
   if m.description then mod.description = m.description end
   if m.body then mod.body = m.body end
@@ -888,11 +891,11 @@ for _, m in pairs(ldoc.modules) do
   end
 
   if m.kind then 
-    if json_export.modules[m.kind] == nil then
-      json_export.modules[m.kind] = {}
+    if json_export.pageTypes[m.kind] == nil then
+      json_export.pageTypes[m.kind] = {}
     end
   
-    table.insert(json_export.modules[m.kind], mod)
+    table.insert(json_export.pageTypes[m.kind], mod)
   end
 end
 
